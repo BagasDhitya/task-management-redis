@@ -4,7 +4,6 @@ import app from "../app";
 jest.mock("../src/controllers/taskController.ts", () => ({
   createTaskHandler: jest.fn((req, res) => {
     res.status(201).send({
-      message: "Task created successfully",
       data: {
         id: "649c9ec1-c00c-44b4-92f3-5dd40bc0038b",
         title: "lorem ipsum 4",
@@ -44,7 +43,7 @@ jest.mock("../src/controllers/taskController.ts", () => ({
     });
   }),
   deleteTaskHandler: jest.fn((req, res) => {
-    res.status(204).send();
+    res.status(204).send({});
   }),
 }));
 
@@ -52,11 +51,17 @@ describe("Task Management Redis API", () => {
   it("should create a new task", async () => {
     const response = await request(app)
       .post("/api/tasks")
-      .send({ title: "New Task" });
+      .send({
+        data: {
+          id: "649c9ec1-c00c-44b4-92f3-5dd40bc0038b",
+          title: "lorem ipsum 4",
+          description: "tes redis 4",
+          dateCreated: "2024-07-12T07:52:50.717Z",
+        },
+      });
 
     expect(response.status).toBe(201);
-    expect(response.body.message).toBe({
-      message: "Task created successfully",
+    expect(response.body).toEqual({
       data: {
         id: "649c9ec1-c00c-44b4-92f3-5dd40bc0038b",
         title: "lorem ipsum 4",
@@ -67,7 +72,9 @@ describe("Task Management Redis API", () => {
   });
 
   it("should get task by id", async () => {
-    const response = await request(app).get("/api/tasks/1");
+    const response = await request(app).get(
+      "/api/tasks/22aeb66f-9154-4c88-8ffc-126f75afb895"
+    );
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
@@ -95,7 +102,7 @@ describe("Task Management Redis API", () => {
 
   it("should update a task", async () => {
     const response = await request(app)
-      .put("/api/tasks")
+      .put("/api/tasks/649c9ec1-c00c-44b4-92f3-5dd40bc0038b")
       .send({
         message: "Successfully updated task",
         data: {
@@ -119,9 +126,11 @@ describe("Task Management Redis API", () => {
   });
 
   it("should delete a task", async () => {
-    const response = await request(app).delete("/api/task/1");
+    const response = await request(app).delete(
+      "/api/tasks/649c9ec1-c00c-44b4-92f3-5dd40bc0038b"
+    );
 
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe(null);
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
   });
 });
