@@ -1,4 +1,4 @@
-import redisClient from "./redisClient.ts";
+import { redisClient } from "./redisClient.ts";
 
 export const printValues = async () => {
   try {
